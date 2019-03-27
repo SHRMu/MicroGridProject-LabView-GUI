@@ -1,0 +1,13 @@
+/etc/wpa_supplicant/wpa_supplicant.conf
+
+sudo ifconfig wlan0 down
+sleep 30
+sudo ifconfig wlan0 up
+
+
+download
+scp pi@192.168.1.11:/home/pi/Applications/opcua_server/opcua_server.py .\opcua_server.py
+
+upload
+scp .\opcua_server.py pi@192.168.1.11:/home/pi/Applications/opcua_server/opcua_server.py
+
