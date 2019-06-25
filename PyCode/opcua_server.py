@@ -90,18 +90,33 @@ if __name__ == '__main__':
 
 	try: 
 		while True:
-			############ 1 step : receive data from op4510 server #################
+
+			############ step : read changed parameters from Labview #################
+			kf_var = server.get_node("ns=2;i=8").get_value()
+			tf_var = server.get_node("ns=2;i=9").get_value()
+			kP_var = server.get_node("ns=2;i=10").get_value()
+			tP_var = server.get_node("ns=2;i=11").get_value()
+			Kp_var = server.get_node("ns=2;i=12").get_value()
+			Ki_var = server.get_node("ns=2;i=13").get_value()
+
+			print("changed kf_node: ", kf_var, " tf_var: ", tf_var, " kP_var: ",kP_var, " tP_var: ",tP_var, " Kp_var: ",Kp_var, " Ki_var: ",Ki_var)
+
+			############ step : send the changed value back to op4510 #################
+			#client.sendto(struct.pack('d',kf_var),(Target_IP,PORT_send))
+			client.sendto(struct.pack('dddddd',kf_var,tf_var,kP_var,tP_var,Kp_var,Ki_var),(Target_IP,PORT_send))
+
+			############ step : receive data from op4510 server ############
 			receive_data, client_address = server_socket.recvfrom(80)
-			print(receive_data)
+			#print(receive_data)
 			#unpack the data with double format
 			receive_data = struct.unpack('dddddddddd', receive_data)
-			print("received data from UDP : ", receive_data)
+			#print("received data from UDP : ", receive_data)
 
-			############ 2 step : send parameters data to Labview #################
+			############ step : prepare the param_list ############
 			#prepare parameters sent to the Labview
 			data_list=[]
 			#gas level 
-			data_list.append(randint(10,60))
+			data_list.append(randint(0,100))
 			for item in receive_data:
 				#2 digits after dot
 				data_list.append(float('%.3f' % (item)))
@@ -113,9 +128,9 @@ if __name__ == '__main__':
 			#opMode
 			data_list.insert(5, 0)
 
-			print ("parametsers data : ", data_list)
+			#print ("parametsers data : ", data_list)
 
-			#send data to labview with OPCUA protocal
+			############ step : send updated param_list to Labview #################
 			for object_item in object_list:
 				var_list = object_item.get_variables()
 				for var in var_list:
@@ -125,18 +140,6 @@ if __name__ == '__main__':
 					# get node info and node value
 					#print(str(var) + " ---- " + str(var.get_value()))
 				#print(object_item.get_display_name())
-
-			############ 3 step : read the changed parameters from Labview #################
-			kf_node = server.get_node("ns=2;i=8")
-			kf_var = kf_node.get_value()
-			tf_var = server.get_node("ns=2;i=9").get_value()
-			kP_var = server.get_node("ns=2;i=10").get_value()
-
-			print("changed kf_node value : ", kf_var, tf_var,kP_var)
-
-			############ 4 step : send the changed value back to op4510 #################
-			#client.sendto(struct.pack('d',kf_var),(Target_IP,PORT_send))
-			client.sendto(struct.pack('dddddd',kf_var,tf_var,kP_var,4,5,6),(Target_IP,PORT_send))
 
 			print("*" * 70)
 			time.sleep(2)
