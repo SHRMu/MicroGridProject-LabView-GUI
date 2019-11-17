@@ -1,4 +1,4 @@
-# MicroGridProject
+# MicroGridProject-LabView-GUI
 
 ### TU Darmstadt WS2018/2019 Projektseminar Energieinformationssysteme
 
